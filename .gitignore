@@ -1,0 +1,4 @@
+﻿node_modules
+var/logs
+tsconfig.build.tsbuildinfo
+dist

@@ -1,0 +1,22 @@
+image: node:latest
+stages:
+  - deploy
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - node_modules/
+deploy:
+  stage: deploy
+  script:
+    - npm config set @p2p-scanner:registry https://gitlab.com/api/v4/packages/npm/
+    - npm config set -- '//gitlab.com/api/v4/packages/npm/:_authToken' "$CI_DEPLOY_PASSWORD"
+    - npm i
+    - npm run build
+    - |
+      {
+        echo "@${CI_PROJECT_ROOT_NAMESPACE}:registry=${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/npm/"
+        echo "${CI_API_V4_URL#https?}/projects/${CI_PROJECT_ID}/packages/npm/:_authToken=\${GITLAB_TOKEN}"
+      } | tee -a .npmrc
+    - npm run semantic-release
+  only:
+    - master
